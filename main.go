@@ -1,13 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"net/http"
 	"os"
 	"strings"
 )
+
+type urlRequest struct {
+	URL string `json:"url"`
+}
 
 type resource struct {
 	ID string `json:"id"`
@@ -17,7 +22,7 @@ func main() {
 	bytes, err := ioutil.ReadAll(os.Stdin)
 
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 
@@ -31,14 +36,18 @@ func main() {
 
 		if isResID(res.ID) {
 			printLink(res.ID)
+			tryOpenLink(res.ID)
 		}
 	} else {
 		if shouldUnwrap, str := isJSONString(input); shouldUnwrap {
 			input = str
 		}
 
+		input = normalize(input)
+
 		if isResID(input) {
 			printLink(input)
+			tryOpenLink(input)
 		} else if isMultiLine(input) {
 			lines := strings.Split(input, "\n")
 			for _, line := range lines {
@@ -48,6 +57,10 @@ func main() {
 			}
 		}
 	}
+}
+
+func normalize(s string) string {
+	return strings.Trim(s, "\n ")
 }
 
 func isJSONString(s string) (bool, string) {
@@ -71,5 +84,30 @@ func isMultiLine(id string) bool {
 }
 
 func printLink(id string) {
-	fmt.Printf("https://portal.azure.com/#resource%s\n", id)
+	fmt.Printf(getLink(id))
+}
+
+func getLink(id string) string {
+	return fmt.Sprintf("https://portal.azure.com/#resource%s\n", id)
+}
+
+func tryOpenLink(id string) {
+	if termID, ok := os.LookupEnv("ACC_TERM_ID"); ok {
+		url := fmt.Sprintf("http://localhost:8888/openLink/%s", termID)
+
+		client := &http.Client{}
+		reqBody, _ := json.Marshal(urlRequest{URL: getLink(id)})
+		resp, err := client.Post(url, "application/json", bytes.NewReader(reqBody))
+
+		if err != nil {
+			fmt.Printf("Failed to open links in Cloud Shell: %s\n", err.Error())
+		}
+
+		if resp.StatusCode != 200 {
+			content, _ := ioutil.ReadAll(resp.Body)
+			fmt.Printf("Failed to open links in Cloud Shell: %s\n%s\n", resp.Status, content)
+		}
+
+		fmt.Println("Opening portal in new tab...")
+	}
 }
