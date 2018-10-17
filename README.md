@@ -2,10 +2,12 @@
 A simple tool that parses and converts stdin to clickable Azure portal hyperlink. Enable easier navigation between Azure CLI and Portal.
 
 # How to use
+Print the deep link url for my-vm. In cloud shell, this will open a new tab automatically with the deep link.
 ```
 az vm show -g my-group -n my-vm | portal
 ```
 
+Print all deep link urls of VMs in the subscription
 ```
 az vm list | jq -r .[].id | portal
 ```
