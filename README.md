@@ -15,18 +15,18 @@ az vm list | jq -r .[].id | portal
 # How to install
 For Linux:
 ```bash
-curl -sL https://github.com/yangl900/portal/releases/download/0.1/portal_linux_64-bit.tar.gz | tar xz
+curl -sL https://github.com/yangl900/portal/releases/download/0.2/portal_linux_64-bit.tar.gz | tar xz
 ```
 
 For Windows (In PowerShell):
 ```powershell
-curl https://github.com/yangl900/portal/releases/download/0.1/portal_windows_64-bit.zip -OutFile portal.zip
+curl https://github.com/yangl900/portal/releases/download/0.2/portal_windows_64-bit.zip -OutFile portal.zip
 ```
 And unzip the file, the only binary needed is portal.exe.
 
 For MacOS:
 ```bash
-curl -sL https://github.com/yangl900/portal/releases/download/0.1/portal_macOS_64-bit.tar.gz | tar xz
+curl -sL https://github.com/yangl900/portal/releases/download/0.2/portal_macOS_64-bit.tar.gz | tar xz
 ```
 
 # Azure Cloud Shell
